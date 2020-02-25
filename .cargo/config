@@ -9,3 +9,8 @@ rustflags = ["-C", "link-args=/ENTRY:_start /SUBSYSTEM:console"]
 
 [target.'cfg(target_os = "macos")']
 rustflags = ["-C", "link-args=-e __start -static -nostartfiles"]
+
+[target.riscv64imac-unknown-none-elf]
+rustflags = [
+    "-C", "link-arg=-Tsrc/boot/linker64.ld",
+]
