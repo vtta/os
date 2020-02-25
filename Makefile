@@ -22,6 +22,9 @@ $(bin): kernel
 asm: kernel
 	$(objdump) --disassemble $(kernel) | less
 
+elf: kernel
+	$(objdump) --all-headers $(kernel) | less
+
 build: $(bin)
 
 clean:
