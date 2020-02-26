@@ -1,6 +1,13 @@
-use riscv::register::{scause::Scause, sscratch, sstatus, sstatus::Sstatus, stvec};
+use riscv::register::{
+    scause::{Exception, Interrupt, Scause, Trap},
+    sscratch, sstatus,
+    sstatus::Sstatus,
+    stvec,
+};
 
 global_asm!(include_str!("trap.asm"));
+
+pub mod timer;
 
 #[repr(C)]
 pub struct Frame {
@@ -19,6 +26,7 @@ pub struct Frame {
 pub fn init() {
     println!("+++ setting up trap handler +++");
     unsafe {
+        // sie::clear_stimer();
         extern "C" {
             fn __alltraps();
         }
@@ -28,12 +36,33 @@ pub fn init() {
         stvec::write(__alltraps as usize, stvec::TrapMode::Direct);
         sstatus::set_sie();
     }
+    timer::init();
 }
 
 #[no_mangle]
 extern "C" fn rust_trap(tf: &mut Frame) {
-    println!("+++ entered trap handler +++");
+    // println!("+++ entered trap handler +++");
+    match tf.scause.cause() {
+        Trap::Exception(Exception::Breakpoint) => breakpoint(tf),
+        Trap::Interrupt(Interrupt::SupervisorTimer) => stimer(),
+        _ => panic!("+++ unhandled trap +++"),
+    }
+}
+
+fn breakpoint(tf: &mut Frame) {
+    println!("a breakpoint set at 0x{:x}", tf.sepc);
     // points to the next instruction
     // C extension compact some instructions
     tf.sepc += 2;
+}
+
+fn stimer() {
+    unsafe {
+        timer::TICKS += 1;
+        if timer::TICKS == 100 {
+            timer::TICKS = 0;
+            println!("+++ 100 ticks +++")
+        }
+    }
+    timer::set(timer::TIMEBASE);
 }

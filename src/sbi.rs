@@ -8,6 +8,21 @@ pub fn console_getchar() -> isize {
     sbi_call(SBI_CONSOLE_GETCHAR, 0, 0, 0, 0, 0, 0).0
 }
 
+pub fn set_timer(stime_value: u64) {
+    #[cfg(target_pointer_width = "32")]
+    sbi_call(
+        SBI_SET_TIMER,
+        0,
+        stime_value as usize,
+        (stime_value >> 32) as usize,
+        0,
+        0,
+        0,
+    );
+    #[cfg(target_pointer_width = "64")]
+    sbi_call(SBI_SET_TIMER, 0, stime_value as usize, 0, 0, 0, 0);
+}
+
 // https://github.com/riscv/riscv-sbi-doc/blob/master/riscv-sbi.adoc
 // #legacy-sbi-extension-extension-ids-0x00-through-0x0f
 // 0x09-0x0F RESERVED
