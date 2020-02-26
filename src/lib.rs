@@ -8,7 +8,7 @@
 #[macro_use]
 pub mod io;
 
-mod init;
-mod interrupt;
+mod boot;
 mod lang_item;
 mod sbi;
+mod trap;
