@@ -9,5 +9,6 @@
 pub mod io;
 
 mod init;
+mod interrupt;
 mod lang_item;
 mod sbi;

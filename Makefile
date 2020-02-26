@@ -38,6 +38,16 @@ qemu: build
 		-bios default   \
 		-device loader,file=$(bin),addr=0x80200000
 
+
+qemu-gdb: build
+	qemu-system-riscv64 \
+		-gdb tcp::9000  \
+		-machine virt   \
+		-nographic      \
+		-bios default   \
+		-S              \
+		-device loader,file=$(bin),addr=0x80200000
+
 run: build qemu
 
 dtc:

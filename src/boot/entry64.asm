@@ -6,7 +6,7 @@ _start:
     # addi  rd, rd, symbol[11:0]
     # load the address of bootstacktop into sp
     la sp, bootstacktop
-    call rust_main
+    call boot_main
 
     .section .bss.stack
     .align 12
