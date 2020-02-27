@@ -50,7 +50,7 @@ extern "C" fn rust_trap(tf: &mut Frame) {
 }
 
 fn breakpoint(tf: &mut Frame) {
-    println!("a breakpoint set at 0x{:x}", tf.sepc);
+    println!("a breakpoint set at {:#x}", tf.sepc);
     // points to the next instruction
     // C extension compact some instructions
     tf.sepc += 2;
@@ -59,9 +59,9 @@ fn breakpoint(tf: &mut Frame) {
 fn stimer() {
     unsafe {
         timer::TICKS += 1;
-        if timer::TICKS == 100 {
+        if timer::TICKS == 1000 {
             timer::TICKS = 0;
-            println!("+++ 100 ticks +++")
+            println!("+++ 1000 ticks +++")
         }
     }
     timer::set(timer::TIMEBASE);
