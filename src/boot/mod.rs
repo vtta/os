@@ -7,7 +7,7 @@ extern "C" fn rust_main() -> ! {
     extern "C" {
         fn end();
         fn _start();
-        fn bootstacktop();
+        fn boot_stack_top();
     }
     let text_size = end as usize - KERNEL_BEGIN_VADDR;
     println!(
@@ -21,7 +21,7 @@ extern "C" fn rust_main() -> ! {
         PHYSICAL_MEMORY_END / PAGE_SIZE
     );
     println!("_start vaddr {:#x}", _start as usize);
-    println!("bootstacktop vaddr {:#x}", bootstacktop as usize);
+    println!("bootstacktop vaddr {:#x}", boot_stack_top as usize);
 
     crate::trap::init();
     crate::mem::init();
