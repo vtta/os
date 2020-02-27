@@ -1,8 +1,9 @@
 // #![deny(missing_docs)]
 #![no_std]
 #![feature(asm)]
-#![feature(global_asm)]
 #![feature(const_fn)]
+#![feature(global_asm)]
+#![feature(alloc_error_handler)]
 
 //! An OS in rust!
 

@@ -1,5 +1,6 @@
 use crate::config::*;
 use crate::mem::frame::PPN;
+use core::mem::size_of;
 use spin::Mutex;
 
 pub static FRAME_ALLOCATOR: Mutex<SegmentTreeAllocator> = Mutex::new(SegmentTreeAllocator::new());
@@ -20,10 +21,7 @@ pub struct SegmentTreeAllocator {
     len: usize,
 }
 
-#[cfg(target_pointer_width = "64")]
-const BITSET_UNIT_LEN: usize = 64;
-#[cfg(target_pointer_width = "32")]
-const BITSET_UNIT_LEN: usize = 32;
+const BITSET_UNIT_LEN: usize = 8 * size_of::<usize>();
 const BITSET_BITS: usize = (PHYSICAL_MEMORY_END + PAGE_SIZE - 1) / PAGE_SIZE * 2;
 const BITSET_UNITS: usize = (BITSET_BITS + BITSET_UNIT_LEN - 1) / BITSET_UNIT_LEN;
 

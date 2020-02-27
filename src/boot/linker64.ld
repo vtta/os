@@ -40,6 +40,6 @@ SECTIONS
         ebss = .;
     }
 
-    /* may not be aligned to 4K? */
+    /* may not be aligned to 4K */
     PROVIDE(end = .);
 }

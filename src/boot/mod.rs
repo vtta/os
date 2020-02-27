@@ -24,10 +24,7 @@ extern "C" fn rust_main() -> ! {
     println!("bootstacktop vaddr {:#x}", bootstacktop as usize);
 
     crate::trap::init();
-    crate::mem::init(
-        ((KERNEL_BEGIN_PADDR + text_size) / PAGE_SIZE + 1).into(),
-        (PHYSICAL_MEMORY_END / PAGE_SIZE).into(),
-    );
+    crate::mem::init();
     unsafe {
         asm!("ebreak"::::"volatile");
     }

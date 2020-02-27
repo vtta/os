@@ -11,33 +11,42 @@ pub struct Frame(PhysAddr);
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PPN(usize);
 
-pub fn init(l: PPN, r: PPN) {
-    println!("+++ setting up physical memory +++");
+pub(crate) fn init(l: PPN, r: PPN) {
     FRAME_ALLOCATOR.lock().init(l, r);
-    mem_test(l, r);
 }
 
-pub fn alloc() -> Option<Frame> {
+pub(crate) fn alloc() -> Option<Frame> {
     FRAME_ALLOCATOR.lock().alloc().map(Frame::from_ppn)
 }
 
-pub fn dealloc(f: Frame) {
+pub(crate) fn dealloc(f: Frame) {
     FRAME_ALLOCATOR.lock().dealloc(f.page_number())
 }
 
-fn mem_test(l: PPN, r: PPN) {
+#[allow(clippy::many_single_char_names)]
+pub(crate) fn test(l: PPN, r: PPN) {
     let l = *l;
     let r = *r;
     println!("free pages count {}", r - l);
     mem_test_full(l, r);
-    println!("alloc {:x?}", alloc());
+    let a = alloc();
+    assert!(a.is_some());
+    let b = alloc();
+    assert!(b.is_some());
+    assert_ne!(a, b);
+    let c = alloc();
+    assert!(c.is_some());
+    assert_ne!(b, c);
+    let d = alloc();
+    assert!(d.is_some());
+    assert_ne!(c, d);
+    dealloc(c.unwrap());
+    let e = alloc();
+    assert!(e.is_some());
+    assert_eq!(c, e);
     let f = alloc();
-    println!("alloc {:x?}", f);
-    println!("alloc {:x?}", alloc());
-    println!("dealloc {:x?}", f);
-    dealloc(f.unwrap());
-    println!("alloc {:x?}", alloc());
-    println!("alloc {:x?}", alloc());
+    assert!(f.is_some());
+    assert_ne!(e, f);
 }
 
 fn mem_test_full(l: usize, r: usize) {

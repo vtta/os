@@ -4,6 +4,7 @@ pub const PHYSICAL_MEMORY_END: usize = PHYSICAL_MEMORY_BEGIN + MAX_PHYSICAL_MEMO
 
 pub const KERNEL_BEGIN_PADDR: usize = 0x8020_0000;
 pub const KERNEL_BEGIN_VADDR: usize = 0x8020_0000;
+pub const KERNEL_HEAP_SIZE: usize = 0x80_0000;
 
 pub const PAGE_BITS: usize = 12;
 pub const PAGE_SIZE: usize = 1 << PAGE_BITS;
