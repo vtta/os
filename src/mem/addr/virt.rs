@@ -1,5 +1,4 @@
 use crate::config::PAGE_SIZE;
-use crate::mem::page::VPN;
 use bit_field::BitField;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -54,12 +53,15 @@ impl VirtAddr {
     pub fn p1_index(self) -> usize {
         self.0.get_bits(12..21)
     }
-    pub fn page_number(self) -> VPN {
-        self.0.get_bits(12..64).into()
+    pub fn page_number(self) -> usize {
+        self.0.get_bits(12..64)
     }
 }
 
 impl VirtAddr {
+    pub fn new(addr: usize) -> Self {
+        addr.into()
+    }
     pub fn as_usize(self) -> usize {
         self.0
     }

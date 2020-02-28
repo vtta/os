@@ -3,15 +3,12 @@ use crate::mem::addr::PhysAddr;
 use alloc::{FrameAlloc, FRAME_ALLOCATOR};
 use core::ops::Deref;
 
-mod alloc;
+pub(crate) mod alloc;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Frame(PhysAddr);
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct PPN(usize);
-
-pub(crate) fn init(l: PPN, r: PPN) {
+pub(crate) fn init(l: usize, r: usize) {
     FRAME_ALLOCATOR.lock().init(l, r);
 }
 
@@ -24,9 +21,7 @@ pub(crate) fn dealloc(f: Frame) {
 }
 
 #[allow(clippy::many_single_char_names)]
-pub(crate) fn test(l: PPN, r: PPN) {
-    let l = *l;
-    let r = *r;
+pub(crate) fn test(l: usize, r: usize) {
     println!("free pages count {}", r - l);
     mem_test_full(l, r);
     let a = alloc();
@@ -59,7 +54,7 @@ fn mem_test_full(l: usize, r: usize) {
     }
     assert_eq!(cnt, r - l);
     for i in l..r {
-        dealloc(Frame::from_ppn(i.into()));
+        dealloc(Frame::from_ppn(i));
     }
 }
 
@@ -70,27 +65,13 @@ impl From<PhysAddr> for Frame {
 }
 
 impl Frame {
-    pub fn from_ppn(ppn: PPN) -> Self {
-        Self((*ppn * PAGE_SIZE).into())
+    pub fn from_ppn(ppn: usize) -> Self {
+        Self((ppn * PAGE_SIZE).into())
     }
 }
 
 impl Deref for Frame {
     type Target = PhysAddr;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl From<usize> for PPN {
-    fn from(ppn: usize) -> Self {
-        Self(ppn)
-    }
-}
-
-impl Deref for PPN {
-    type Target = usize;
 
     fn deref(&self) -> &Self::Target {
         &self.0

@@ -1,16 +1,14 @@
 use crate::config::*;
-use crate::mem::frame::PPN;
 use core::mem::size_of;
 use spin::Mutex;
 
 pub static FRAME_ALLOCATOR: Mutex<SegmentTreeAllocator> = Mutex::new(SegmentTreeAllocator::new());
 
 pub trait FrameAlloc {
-    fn init(&mut self, l: PPN, r: PPN);
     /// find a of free page
-    fn alloc(&mut self) -> Option<PPN>;
+    fn alloc(&mut self) -> Option<usize>;
     // free the given page
-    fn dealloc(&mut self, ppn: PPN);
+    fn dealloc(&mut self, ppn: usize);
 }
 
 // range update/query
@@ -65,13 +63,8 @@ impl SegmentTreeAllocator {
             occupied: bs,
         }
     }
-}
 
-/// loosely borrowed from: https://codeforces.com/blog/entry/18051
-impl FrameAlloc for SegmentTreeAllocator {
-    fn init(&mut self, l: PPN, r: PPN) {
-        let l = *l;
-        let r = *r;
+    pub(crate) fn init(&mut self, l: usize, r: usize) {
         for i in 0..l {
             self.occupied.set(i + self.cap);
         }
@@ -84,9 +77,12 @@ impl FrameAlloc for SegmentTreeAllocator {
             }
         }
     }
+}
 
+/// loosely borrowed from: https://codeforces.com/blog/entry/18051
+impl FrameAlloc for SegmentTreeAllocator {
     /// we do not guarantee the first allocated frame has the smallest ppn
-    fn alloc(&mut self) -> Option<PPN> {
+    fn alloc(&mut self) -> Option<usize> {
         if self.len >= self.cap {
             return None;
         }
@@ -110,11 +106,10 @@ impl FrameAlloc for SegmentTreeAllocator {
             p /= 2;
         }
 
-        Some((x - self.cap).into())
+        Some(x - self.cap)
     }
 
-    fn dealloc(&mut self, ppn: PPN) {
-        let ppn = *ppn;
+    fn dealloc(&mut self, ppn: usize) {
         if !self.occupied.get(ppn) {
             return;
         }

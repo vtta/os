@@ -1,5 +1,4 @@
 use crate::config::PAGE_SIZE;
-use crate::mem::frame::PPN;
 use bit_field::BitField;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -23,7 +22,7 @@ impl PhysAddr {
     pub fn p1_index(self) -> usize {
         return self.0.get_bits(12..22);
     }
-    pub fn page_number(self) -> PPN {
+    pub fn page_number(self) -> usize {
         self.0.get_bits(12..32)
     }
 }
@@ -42,12 +41,15 @@ impl PhysAddr {
     pub fn p1_index(self) -> usize {
         self.0.get_bits(12..21)
     }
-    pub fn page_number(self) -> PPN {
-        self.0.get_bits(12..64).into()
+    pub fn page_number(self) -> usize {
+        self.0.get_bits(12..64)
     }
 }
 
 impl PhysAddr {
+    pub fn new(addr: usize) -> Self {
+        addr.into()
+    }
     pub fn as_usize(self) -> usize {
         self.0
     }
