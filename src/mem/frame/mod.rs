@@ -68,6 +68,10 @@ impl Frame {
     pub fn from_ppn(ppn: usize) -> Self {
         Self((ppn * PAGE_SIZE).into())
     }
+
+    pub fn number(self) -> usize {
+        self.page_number()
+    }
 }
 
 impl Deref for Frame {

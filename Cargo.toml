@@ -11,3 +11,4 @@ riscv = { version = "0.5.4", features = ["inline-asm"] }
 spin = "0.5.2"
 bit_field = "0.10.0"
 buddy_system_allocator = "0.3.6"
+bitflags = "1.2.1"

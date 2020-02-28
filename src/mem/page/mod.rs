@@ -2,6 +2,7 @@ use crate::config::PAGE_SIZE;
 use crate::mem::addr::VirtAddr;
 use core::ops::Deref;
 
+mod entry;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Page(VirtAddr);
 
