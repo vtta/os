@@ -8,8 +8,6 @@ impl From<usize> for PhysAddr {
     fn from(paddr: usize) -> Self {
         #[cfg(riscv64)]
         assert!(paddr.get_bits(32..64) == 0, "pa 32..64 not zero?");
-
-        // #[cfg(riscv32)]
         Self(paddr)
     }
 }
@@ -63,5 +61,10 @@ impl PhysAddr {
     #[allow(clippy::trivially_copy_pass_by_ref)]
     pub(crate) unsafe fn as_mut<'a, 'b, T>(&'a self) -> &'b mut T {
         &mut *(self.0 as *mut T)
+    }
+    /// convert to a virtual address in the kernel space
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    pub(crate) unsafe fn as_kernel_mut<'a, 'b, T>(&'a self, linear_offset: usize) -> &'b mut T {
+        &mut *((self.0 + linear_offset) as *mut T)
     }
 }

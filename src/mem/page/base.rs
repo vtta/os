@@ -1,9 +1,8 @@
 use crate::config::PAGE_ENTRIES;
 use crate::mem::frame::Frame;
 use crate::mem::page::entry::{PageTableEntry, EF};
-use bitflags::_core::fmt::{Error, Formatter};
-use bitflags::_core::ops::{Deref, DerefMut};
 use core::fmt;
+use core::ops::{Deref, DerefMut};
 
 pub struct PageTableBase {
     entries: [PageTableEntry; PAGE_ENTRIES],

@@ -1,6 +1,6 @@
 use crate::mem::addr::PhysAddr;
 use crate::mem::addr::VirtAddr;
-use crate::mem::frame::{self, Frame};
+use crate::mem::frame::Frame;
 use crate::mem::page::entry::{PageTableEntry, PageTableFlags};
 use crate::mem::page::Page;
 

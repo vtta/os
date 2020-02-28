@@ -5,6 +5,8 @@ use core::ops::Deref;
 mod base;
 mod entry;
 mod map;
+mod sv39;
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Page(VirtAddr);
 

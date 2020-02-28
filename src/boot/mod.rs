@@ -28,6 +28,5 @@ extern "C" fn rust_main() -> ! {
     unsafe {
         asm!("ebreak"::::"volatile");
     }
-
     panic!("I'm fucked!");
 }

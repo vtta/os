@@ -9,19 +9,19 @@ impl From<usize> for VirtAddr {
         #[cfg(riscv64)]
         {
             if vaddr.get_bit(47) {
-                assert!(
-                    vaddr.get_bits(48..64) == 0xFFFF,
+                assert_eq!(
+                    vaddr.get_bits(48..64),
+                    0xFFFF,
                     "high bits should be sign extended"
                 );
             } else {
-                assert!(
-                    vaddr.get_bits(48..64) == 0x0000,
+                assert_eq!(
+                    vaddr.get_bits(48..64),
+                    0x0000,
                     "high bits should be sign extended"
                 );
             }
         }
-
-        // #[cfg(riscv32)]
         Self(vaddr)
     }
 }
