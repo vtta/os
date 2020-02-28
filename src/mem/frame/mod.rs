@@ -1,24 +1,50 @@
 use crate::config::PAGE_SIZE;
 use crate::mem::addr::PhysAddr;
-use alloc::FRAME_ALLOCATOR;
 use core::ops::Deref;
-
-pub(crate) mod alloc;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Frame(PhysAddr);
 
 pub(crate) fn init(l: usize, r: usize) {
-    FRAME_ALLOCATOR.lock().init(l, r);
+    self::alloc::FRAME_ALLOCATOR.lock().init(l, r);
 }
-
 pub(crate) fn alloc() -> Option<Frame> {
-    FRAME_ALLOCATOR.lock().alloc().map(Frame::from_ppn)
+    self::alloc::FRAME_ALLOCATOR
+        .lock()
+        .alloc()
+        .map(Frame::from_ppn)
+}
+pub(crate) fn dealloc(f: Frame) {
+    self::alloc::FRAME_ALLOCATOR.lock().dealloc(f.page_number())
 }
 
-pub(crate) fn dealloc(f: Frame) {
-    FRAME_ALLOCATOR.lock().dealloc(f.page_number())
+impl From<PhysAddr> for Frame {
+    fn from(pa: PhysAddr) -> Self {
+        Self(pa)
+    }
 }
+
+impl Frame {
+    pub fn from_ppn(ppn: usize) -> Self {
+        Self((ppn * PAGE_SIZE).into())
+    }
+    pub fn number(self) -> usize {
+        self.page_number()
+    }
+    pub fn start_address(self) -> PhysAddr {
+        (self.as_usize() & !(PAGE_SIZE - 1)).into()
+    }
+}
+
+impl Deref for Frame {
+    type Target = PhysAddr;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+mod alloc;
 
 #[allow(clippy::many_single_char_names)]
 pub(crate) fn test(l: usize, r: usize) {
@@ -55,33 +81,5 @@ fn mem_test_full(l: usize, r: usize) {
     assert_eq!(cnt, r - l);
     for i in l..r {
         dealloc(Frame::from_ppn(i));
-    }
-}
-
-impl From<PhysAddr> for Frame {
-    fn from(pa: PhysAddr) -> Self {
-        Self(pa)
-    }
-}
-
-impl Frame {
-    pub fn from_ppn(ppn: usize) -> Self {
-        Self((ppn * PAGE_SIZE).into())
-    }
-
-    pub fn number(self) -> usize {
-        self.page_number()
-    }
-
-    pub fn start_address(self) -> PhysAddr {
-        (self.as_usize() & !(PAGE_SIZE - 1)).into()
-    }
-}
-
-impl Deref for Frame {
-    type Target = PhysAddr;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
     }
 }
