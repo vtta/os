@@ -4,13 +4,6 @@ use spin::Mutex;
 
 pub static FRAME_ALLOCATOR: Mutex<SegmentTreeAllocator> = Mutex::new(SegmentTreeAllocator::new());
 
-pub trait FrameAlloc {
-    /// find a of free page
-    fn alloc(&mut self) -> Option<usize>;
-    // free the given page
-    fn dealloc(&mut self, ppn: usize);
-}
-
 // range update/query
 pub struct SegmentTreeAllocator {
     // value indicates a page/range is fully occupied
@@ -54,6 +47,7 @@ impl BitSet {
     }
 }
 
+/// loosely borrowed from: https://codeforces.com/blog/entry/18051
 impl SegmentTreeAllocator {
     const fn new() -> Self {
         let bs = BitSet::new();
@@ -77,12 +71,9 @@ impl SegmentTreeAllocator {
             }
         }
     }
-}
 
-/// loosely borrowed from: https://codeforces.com/blog/entry/18051
-impl FrameAlloc for SegmentTreeAllocator {
     /// we do not guarantee the first allocated frame has the smallest ppn
-    fn alloc(&mut self) -> Option<usize> {
+    pub(crate) fn alloc(&mut self) -> Option<usize> {
         if self.len >= self.cap {
             return None;
         }
@@ -109,7 +100,7 @@ impl FrameAlloc for SegmentTreeAllocator {
         Some(x - self.cap)
     }
 
-    fn dealloc(&mut self, ppn: usize) {
+    pub(crate) fn dealloc(&mut self, ppn: usize) {
         if !self.occupied.get(ppn) {
             return;
         }

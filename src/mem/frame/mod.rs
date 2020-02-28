@@ -1,6 +1,6 @@
 use crate::config::PAGE_SIZE;
 use crate::mem::addr::PhysAddr;
-use alloc::{FrameAlloc, FRAME_ALLOCATOR};
+use alloc::FRAME_ALLOCATOR;
 use core::ops::Deref;
 
 pub(crate) mod alloc;

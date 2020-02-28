@@ -1,18 +1,11 @@
 use crate::mem::addr::PhysAddr;
 use crate::mem::addr::VirtAddr;
-use crate::mem::frame::alloc::FrameAlloc;
-use crate::mem::frame::Frame;
+use crate::mem::frame::{self, Frame};
 use crate::mem::page::entry::{PageTableEntry, PageTableFlags};
 use crate::mem::page::Page;
 
 pub(crate) trait Map {
-    fn map(
-        &mut self,
-        page: Page,
-        frame: Frame,
-        flags: PageTableFlags,
-        alloc: &mut impl FrameAlloc,
-    ) -> Result<Flush, Error>;
+    fn map(&mut self, page: Page, frame: Frame, flags: PageTableFlags) -> Result<Flush, Error>;
 
     /// Removes a mapping from the page table and returns the frame that used to be mapped.
     ///
@@ -38,14 +31,9 @@ pub(crate) trait Map {
     }
 
     /// Maps the given frame to the virtual page with the same address.
-    fn identity(
-        &mut self,
-        frame: Frame,
-        flags: PageTableFlags,
-        alloc: &mut impl FrameAlloc,
-    ) -> Result<Flush, Error> {
+    fn identity(&mut self, frame: Frame, flags: PageTableFlags) -> Result<Flush, Error> {
         let page = Page::from(VirtAddr::new(frame.start_address().as_usize()));
-        self.map(page, frame, flags, alloc)
+        self.map(page, frame, flags)
     }
 }
 
