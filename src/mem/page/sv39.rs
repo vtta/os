@@ -56,14 +56,14 @@ impl<'a> Sv39PageTable<'a> {
     fn walk(&mut self, vaddr: VirtAddr) -> Result<&mut PageTableBase, Error> {
         let p3_table = &mut self.root_table;
         let entry = &mut p3_table[vaddr.p3_index()];
-        if !entry.is_unused() {
+        if entry.is_unused() {
             return Err(Error::PageNotMapped);
         }
 
         let p2_table: &mut PageTableBase =
             unsafe { entry.frame().as_kernel_mut(self.linear_offset) };
         let entry = &mut p2_table[vaddr.p2_index()];
-        if !entry.is_unused() {
+        if entry.is_unused() {
             return Err(Error::PageNotMapped);
         }
 
