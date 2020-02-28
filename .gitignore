@@ -3,3 +3,4 @@
 Cargo.lock
 *.dtb
 *.dts
+.gdb_history
