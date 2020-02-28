@@ -13,7 +13,10 @@ pub(crate) struct PageTable<'a> {
     root_frame: Frame,
 }
 
-pub(crate) struct PageEntry<'a>(&'a mut PageTableEntry, Page);
+pub(crate) struct PageEntry<'a> {
+    pub(crate) pte: &'a mut PageTableEntry,
+    page: Page,
+}
 
 impl<'a> PageTable<'a> {
     pub fn bare() -> Self {
@@ -32,7 +35,7 @@ impl<'a> PageTable<'a> {
             .map(va.into(), pa.into(), flags)
             .map(|f| f.flush())
             .ok()
-            .expect("map failed");
+            .unwrap_or_else(|| panic!("map failed {:#x} {:#x}", va.as_usize(), pa.as_usize()));
     }
     pub fn unmap(&mut self, va: VirtAddr) {
         let page = Page(va);
@@ -47,9 +50,12 @@ impl<'a> PageTable<'a> {
     }
     pub fn entry(&mut self, va: VirtAddr) -> Option<PageEntry> {
         let page = Page(va);
-        self.sv39.entry(page).map(|pte| PageEntry(pte, page)).ok()
+        self.sv39
+            .entry(page)
+            .map(|pte| PageEntry { pte, page })
+            .ok()
     }
-    pub fn activate(&mut self) {
+    pub fn activate(&self) {
         let active = Self::active().bits();
         let own = self.satp();
         if active != own {
@@ -66,7 +72,7 @@ impl<'a> PageTable<'a> {
     pub fn satp(&self) -> usize {
         8 << 60 | self.root_frame.number()
     }
-    pub fn flush(&mut self) {
+    pub fn flush(&self) {
         unsafe {
             riscv::asm::sfence_vma_all();
         }
@@ -79,31 +85,31 @@ impl<'a> PageTable<'a> {
 impl<'a> PageEntry<'a> {
     pub fn flush(&self) {
         unsafe {
-            riscv::asm::sfence_vma(0, self.1.start_address().as_usize());
+            riscv::asm::sfence_vma(0, self.page.start_address().as_usize());
         }
     }
     pub fn valid(&self) -> bool {
-        self.0.flags().contains(EF::VALID)
+        self.pte.flags().contains(EF::VALID)
     }
     pub fn readable(&self) -> bool {
-        self.0.flags().contains(EF::READABLE)
+        self.pte.flags().contains(EF::READABLE)
     }
     pub fn writable(&self) -> bool {
-        self.0.flags().contains(EF::WRITABLE)
+        self.pte.flags().contains(EF::WRITABLE)
     }
     pub fn executable(&self) -> bool {
-        self.0.flags().contains(EF::EXECUTABLE)
+        self.pte.flags().contains(EF::EXECUTABLE)
     }
     pub fn user(&self) -> bool {
-        self.0.flags().contains(EF::USER)
+        self.pte.flags().contains(EF::USER)
     }
     pub fn global(&self) -> bool {
-        self.0.flags().contains(EF::GLOBAL)
+        self.pte.flags().contains(EF::GLOBAL)
     }
     pub fn accessed(&self) -> bool {
-        self.0.flags().contains(EF::ACCESSED)
+        self.pte.flags().contains(EF::ACCESSED)
     }
     pub fn dirty(&self) -> bool {
-        self.0.flags().contains(EF::DIRTY)
+        self.pte.flags().contains(EF::DIRTY)
     }
 }

@@ -1,3 +1,4 @@
+use crate::config::PAGE_SIZE;
 use crate::mem::addr::PhysAddr;
 use crate::mem::frame::Frame;
 use core::fmt;
@@ -19,7 +20,7 @@ impl PageTableEntry {
         self.0 >> 10
     }
     pub fn addr(self) -> PhysAddr {
-        PhysAddr::new(self.ppn() << 12)
+        PhysAddr::new(self.ppn() * PAGE_SIZE)
     }
     pub fn frame(self) -> Frame {
         Frame::from(self.addr())
