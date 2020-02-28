@@ -3,7 +3,7 @@ use crate::config::*;
 mod addr;
 mod frame;
 mod heap;
-mod page;
+pub(crate) mod page;
 
 pub fn init() {
     println!("+++ setting up physical memory +++");
