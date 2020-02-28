@@ -17,6 +17,10 @@ impl Page {
     pub fn from_vpn(vpn: usize) -> Self {
         Self((vpn * PAGE_SIZE).into())
     }
+
+    pub fn start_address(self) -> VirtAddr {
+        (self.as_usize() & !(PAGE_SIZE - 1)).into()
+    }
 }
 
 impl Deref for Page {

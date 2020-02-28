@@ -1,7 +1,9 @@
 use crate::config::PAGE_ENTRIES;
 use crate::mem::frame::Frame;
 use crate::mem::page::entry::{PageTableEntry, EF};
+use bitflags::_core::fmt::{Error, Formatter};
 use bitflags::_core::ops::{Deref, DerefMut};
+use core::fmt;
 
 pub struct PageTableBase {
     entries: [PageTableEntry; PAGE_ENTRIES],
@@ -37,5 +39,13 @@ impl Deref for PageTableBase {
 impl DerefMut for PageTableBase {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.entries
+    }
+}
+
+impl fmt::Debug for PageTableBase {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_map()
+            .entries(self.iter().enumerate().filter(|(_, e)| !e.is_unused()))
+            .finish()
     }
 }

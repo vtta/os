@@ -72,6 +72,10 @@ impl Frame {
     pub fn number(self) -> usize {
         self.page_number()
     }
+
+    pub fn start_address(self) -> PhysAddr {
+        (self.as_usize() & !(PAGE_SIZE - 1)).into()
+    }
 }
 
 impl Deref for Frame {
