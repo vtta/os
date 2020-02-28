@@ -3,7 +3,7 @@ use crate::mem::addr::VirtAddr;
 use core::ops::Deref;
 
 mod base;
-mod entry;
+pub(crate) mod entry;
 mod map;
 mod sv39;
 pub(crate) mod table;
@@ -32,5 +32,31 @@ impl Deref for Page {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+pub(crate) struct PageRange {
+    begin: usize,
+    end: usize,
+}
+impl PageRange {
+    pub(crate) fn new(l: VirtAddr, r: VirtAddr) -> Self {
+        Self {
+            begin: l.as_usize() / PAGE_SIZE,
+            end: (r.as_usize() - 1) / PAGE_SIZE + 1,
+        }
+    }
+}
+impl Iterator for PageRange {
+    type Item = Page;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.begin < self.end {
+            let page = Page::from_vpn(self.begin);
+            self.begin += 1;
+            Some(page)
+        } else {
+            None
+        }
     }
 }
