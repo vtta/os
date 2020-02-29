@@ -1,8 +1,6 @@
 use riscv::register::{
     scause::{Exception, Interrupt, Scause, Trap},
-    sscratch, sstatus,
-    sstatus::Sstatus,
-    stvec,
+    sscratch, sstatus, stvec,
 };
 
 global_asm!(include_str!("trap.asm"));
@@ -14,7 +12,7 @@ pub struct Frame {
     /// General registers
     pub x: [usize; 32],
     /// Supervisor status register
-    pub sstatus: Sstatus,
+    pub sstatus: usize,
     /// Supervisor exception program counter
     pub sepc: usize,
     /// Supervisor trap value

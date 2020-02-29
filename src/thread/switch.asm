@@ -50,7 +50,7 @@
 .endm
     # reserve space for ContextContent (except the trap frame)
     addi sp, sp, -14 * XLEN
-    # update the sp field of current context
+    # update the addr field of current context
     sd sp, 0(a0)
     STORE_ALL
     # switch to the target context
@@ -60,6 +60,6 @@
     # target thread became the `current` thread now
     # pop the stack
     addi sp, sp, 14 * XLEN
-    # use sp == 0 as a marker that the thread is running
+    # use addr == 0 as a marker that the thread is running
     sd zero, 0(a1)
     ret
