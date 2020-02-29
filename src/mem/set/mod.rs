@@ -30,12 +30,19 @@ impl<'a> MemSet<'a> {
         handler: impl MemHandler + 'static,
         attrib: MemAttrib,
     ) {
-        println!(
-            "pushing memory area [{:#x}, {:#x})",
-            begin.as_usize(),
-            end.as_usize()
+        // println!(
+        //     "pushing memory area [{:#x}, {:#x})",
+        //     begin.as_usize(),
+        //     end.as_usize()
+        // );
+        assert!(
+            begin <= end,
+            &format!(
+                "invalid memory region [{:#x}, {:#x})",
+                begin.as_usize(),
+                end.as_usize()
+            )
         );
-        assert!(begin <= end, "invalid memory region");
         assert!(
             !self.is_overlap(begin, end),
             &format!(

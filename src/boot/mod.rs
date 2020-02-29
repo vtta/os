@@ -25,6 +25,12 @@ extern "C" fn rust_main() -> ! {
 
     crate::trap::init();
     crate::mem::init();
+    crate::thread::init();
+
+    // let mut table = PageTable::bare();
+    // table.map(KERNEL_BEGIN_VADDR.into(), KERNEL_BEGIN_PADDR.into());
+    // table.activate();
+
     unsafe {
         asm!("ebreak"::::"volatile");
     }

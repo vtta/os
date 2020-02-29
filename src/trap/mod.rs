@@ -43,6 +43,9 @@ extern "C" fn rust_trap(tf: &mut Frame) {
     match tf.scause.cause() {
         Trap::Exception(Exception::Breakpoint) => breakpoint(tf),
         Trap::Interrupt(Interrupt::SupervisorTimer) => stimer(),
+        Trap::Exception(Exception::InstructionPageFault) => page_fault(tf),
+        Trap::Exception(Exception::LoadPageFault) => page_fault(tf),
+        Trap::Exception(Exception::StorePageFault) => page_fault(tf),
         _ => panic!("+++ unhandled trap +++"),
     }
 }
@@ -63,4 +66,14 @@ fn stimer() {
         }
     }
     timer::set(timer::TIMEBASE);
+}
+
+fn page_fault(tf: &mut Frame) {
+    println!(
+        "{:?} va = {:#x} instruction = {:#x}",
+        tf.scause.cause(),
+        tf.stval,
+        tf.sepc
+    );
+    panic!("page fault!");
 }

@@ -1,8 +1,12 @@
 use crate::trap;
 use bit_field::BitField;
 
+#[repr(C)]
+#[derive(Debug)]
 pub(crate) struct Context {
     /// context content has already been saved on stack
+    ///
+    /// addr points to the beginning of context content on stack
     pub(crate) addr: usize,
 }
 impl Context {
@@ -56,6 +60,8 @@ impl ContextContent {
         sstatus.set_bit(5, true);
         // SIE bit
         sstatus.set_bit(2, false);
+        // no drop or pointer related to trap frame
+        // GOSH!!! That's a relief
         let mut tf: trap::Frame = unsafe { core::mem::zeroed() };
         tf.sstatus = sstatus;
         tf.x[2] = sp;
