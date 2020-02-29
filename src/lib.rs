@@ -3,6 +3,7 @@
 #![feature(asm)]
 #![feature(const_fn)]
 #![feature(global_asm)]
+#![feature(naked_functions)]
 #![feature(alloc_error_handler)]
 
 //! An OS in rust!
@@ -20,4 +21,5 @@ mod config;
 mod lang_item;
 mod mem;
 mod sbi;
+mod thread;
 mod trap;

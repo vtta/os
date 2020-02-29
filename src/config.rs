@@ -7,6 +7,7 @@ pub const PHYSICAL_MEMORY_END: usize = PHYSICAL_MEMORY_BEGIN + MAX_PHYSICAL_MEMO
 pub const KERNEL_BEGIN_PADDR: usize = 0x8020_0000;
 pub const KERNEL_BEGIN_VADDR: usize = 0xffff_ffff_c020_0000;
 pub const KERNEL_HEAP_SIZE: usize = 0x80_0000;
+pub const KERNEL_STACK_SIZE: usize = 0x8_0000;
 pub const PHYSICAL_MEMORY_OFFSET: usize = KERNEL_BEGIN_VADDR - KERNEL_BEGIN_PADDR;
 
 pub const PAGE_BITS: usize = 12;
