@@ -65,6 +65,18 @@ impl<'a> MemSet<'a> {
             .filter(|a| a.is_overlap(begin, end))
             .count()
     }
+    // fn kstack(&mut self) {
+    //     extern "C" {
+    //         fn boot_stack();
+    //         fn boot_stack_top();
+    //     }
+    //     self.push(
+    //         (boot_stack as usize).into(),
+    //         (boot_stack_top as usize).into(),
+    //         handler::Linear::new(PHYSICAL_MEMORY_OFFSET),
+    //         MemAttrib::new().readable(true).writable(true),
+    //     );
+    // }
     fn kmap(&mut self) {
         extern "C" {
             fn stext();
@@ -78,6 +90,7 @@ impl<'a> MemSet<'a> {
             fn end();
         }
         // kernel text R-X
+        println!("[{:#x}, {:#x}) R-X text", stext as usize, etext as usize);
         self.push(
             (stext as usize).into(),
             (etext as usize).into(),
@@ -85,6 +98,10 @@ impl<'a> MemSet<'a> {
             attrib::MemAttrib::new().readable(true).executable(true),
         );
         // kernel rodata R--
+        println!(
+            "[{:#x}, {:#x}) R-- rodata",
+            srodata as usize, erodata as usize
+        );
         self.push(
             (srodata as usize).into(),
             (erodata as usize).into(),
@@ -92,6 +109,7 @@ impl<'a> MemSet<'a> {
             attrib::MemAttrib::new().readable(true),
         );
         // kernel data RW-
+        println!("[{:#x}, {:#x}) RW- data", sdata as usize, edata as usize);
         self.push(
             (sdata as usize).into(),
             (edata as usize).into(),
@@ -99,6 +117,7 @@ impl<'a> MemSet<'a> {
             attrib::MemAttrib::new().readable(true).writable(true),
         );
         // kernel bss RW-
+        println!("[{:#x}, {:#x}) RW- bss", sbss as usize, ebss as usize);
         self.push(
             (sbss as usize).into(),
             (ebss as usize).into(),
@@ -106,6 +125,11 @@ impl<'a> MemSet<'a> {
             attrib::MemAttrib::new().readable(true).writable(true),
         );
         // kernel remapped physical space RW-
+        println!(
+            "[{:#x}, {:#x}) RW- remapped",
+            (end as usize / PAGE_SIZE + 1) * PAGE_SIZE,
+            PHYSICAL_MEMORY_END + PHYSICAL_MEMORY_OFFSET
+        );
         self.push(
             // align to PAGE_SIZE
             ((end as usize / PAGE_SIZE + 1) * PAGE_SIZE).into(),

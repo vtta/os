@@ -1,3 +1,4 @@
+use crate::config::*;
 use riscv::register::{
     scause::{Exception, Interrupt, Scause, Trap},
     sscratch, sstatus, stvec,
@@ -34,12 +35,18 @@ pub fn init() {
         stvec::write(__alltraps as usize, stvec::TrapMode::Direct);
         sstatus::set_sie();
     }
-    timer::init();
 }
 
 #[no_mangle]
 extern "C" fn rust_trap(tf: &mut Frame) {
-    // println!("+++ entered trap handler +++");
+    println!("+++ entered trap handler +++");
+    println!(
+        "sstatus {:#x} sepc {:#x} scause {:#x} stval {:#x}",
+        tf.sstatus,
+        tf.sepc,
+        tf.scause.bits(),
+        tf.stval
+    );
     match tf.scause.cause() {
         Trap::Exception(Exception::Breakpoint) => breakpoint(tf),
         Trap::Interrupt(Interrupt::SupervisorTimer) => stimer(),
@@ -48,6 +55,7 @@ extern "C" fn rust_trap(tf: &mut Frame) {
         Trap::Exception(Exception::StorePageFault) => page_fault(tf),
         _ => panic!("+++ unhandled trap +++"),
     }
+    println!("returning from timer rust_trap");
 }
 
 fn breakpoint(tf: &mut Frame) {
@@ -60,12 +68,14 @@ fn breakpoint(tf: &mut Frame) {
 fn stimer() {
     unsafe {
         timer::TICKS += 1;
+        println!("+++ {} ticks +++", timer::TICKS);
         if timer::TICKS == 1000 {
             timer::TICKS = 0;
-            println!("+++ 1000 ticks +++")
         }
     }
-    timer::set(timer::TIMEBASE);
+    timer::set(TIMEBASE);
+    crate::thread::tick();
+    println!("returning from timer interrupt");
 }
 
 fn page_fault(tf: &mut Frame) {
@@ -76,4 +86,29 @@ fn page_fault(tf: &mut Frame) {
         tf.sepc
     );
     panic!("page fault!");
+}
+
+#[inline(always)]
+pub(crate) fn disable() -> usize {
+    let mut sstatus: usize;
+    unsafe { asm!("csrci sstatus, 1 << 1":"=r"(sstatus):::"volatile") }
+    sstatus
+}
+#[inline(always)]
+pub(crate) fn restore(flags: usize) {
+    unsafe { asm!("csrs sstatus, $0"::"r"(flags)::"volatile") }
+}
+#[inline(always)]
+fn enable() {
+    restore(1 << 1);
+}
+#[inline(always)]
+pub(crate) fn wait() {
+    unsafe { asm!("wfi"::::"volatile") }
+}
+#[inline(always)]
+pub(crate) fn enable_and_wait() {
+    unsafe {
+        asm!("csrsi sstatus, 1 << 1; wfi" :::: "volatile");
+    }
 }

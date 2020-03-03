@@ -21,6 +21,10 @@ pub fn init() {
     frame::init(bppn, eppn);
     frame::test(bppn, eppn);
     let mut memset = MemSet::new();
+    println!(
+        "[{:#x}, {:#x}) RW- stack",
+        boot_stack as usize, boot_stack_top as usize
+    );
     memset.push(
         (boot_stack as usize).into(),
         (boot_stack_top as usize).into(),

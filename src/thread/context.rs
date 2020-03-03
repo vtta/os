@@ -50,7 +50,7 @@ impl ContextContent {
         }
         let ra = __trapret as usize;
         let s = [0usize; 12];
-        let mut sstatus = 0usize;
+        let mut sstatus: usize;
         unsafe {
             asm!("csrr $0, sstatus": "=r"(sstatus):::"volatile");
         }
@@ -59,7 +59,7 @@ impl ContextContent {
         // SPIE (previous interrupt enable)
         sstatus.set_bit(5, true);
         // SIE bit
-        sstatus.set_bit(2, false);
+        sstatus.set_bit(1, false);
         // no drop or pointer related to trap frame
         // GOSH!!! That's a relief
         let mut tf: trap::Frame = unsafe { core::mem::zeroed() };

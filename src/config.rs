@@ -15,3 +15,7 @@ pub const PAGE_SIZE: usize = 1 << PAGE_BITS;
 pub const PAGE_ENTRIES: usize = PAGE_SIZE / size_of::<usize>();
 
 pub const MAX_PHYSICAL_PAGES: usize = MAX_PHYSICAL_MEMORY / PAGE_SIZE;
+
+// roughly 1 percent of CPU clock
+pub const TIMEBASE: u64 = 100_000;
+pub const TICKS_PER_TIME_SLICE: usize = 10;
