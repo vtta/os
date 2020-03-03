@@ -140,6 +140,8 @@ impl Scheduler for RRScheduler {
         if let Some(mut front) = self.queue.pop_front() {
             front.time -= 1;
             if front.time == 0 {
+                front.time = TICKS_PER_TIME_SLICE;
+                self.queue.push_front(front);
                 true
             } else {
                 self.queue.push_front(front);

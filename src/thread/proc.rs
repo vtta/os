@@ -57,7 +57,7 @@ impl Processor {
                     .expect("I just put it in there, this should not happen!");
                 self.inner().pool.r#yield(tid, thread);
             } else {
-                println!("[idle] sleeping");
+                // println!("[idle] sleeping");
                 // sleep and wait for interrupt
                 trap::enable_and_wait();
             }
@@ -65,16 +65,16 @@ impl Processor {
     }
     pub(crate) fn tick(&mut self) {
         let inner = self.inner();
-        println!("testing time slice");
+        // println!("testing time slice");
         if let Some((_, thread)) = &mut inner.cur {
             // time's up
             if inner.pool.tick() {
-                println!("time is up");
+                // println!("time is up");
                 let sstatus = trap::disable();
                 thread.switch(&mut inner.idle);
                 trap::restore(sstatus);
             } else {
-                println!("you got some more time");
+                // println!("you got some more time");
             }
         }
     }
